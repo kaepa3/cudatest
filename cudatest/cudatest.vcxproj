@@ -146,9 +146,16 @@
     <CudaCompile Include="CudaProcess.cu">
       <TargetMachinePlatform Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">64</TargetMachinePlatform>
     </CudaCompile>
+    <CudaCompile Include="cuda_multiply.cu" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cpu_multiply.h" />
     <ClInclude Include="CudaProcess.cuh" />
+    <ClInclude Include="cuda_multiply.cuh" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cpu_multiply.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
