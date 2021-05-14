@@ -2,6 +2,7 @@
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 #include <iostream>
+
 using namespace std;
 
 __global__ void kernel(int* pSrc1, int* pSrc2, int* pResult, int length)
@@ -14,9 +15,7 @@ __global__ void kernel(int* pSrc1, int* pSrc2, int* pResult, int length)
 	pResult[idx] = pSrc1[idx] + pSrc2[idx];
 	return;
 }
-int main() {
-	Process();
-}
+
 
 void Process() {
 	int length = 1024;
