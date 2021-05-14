@@ -41,3 +41,6 @@ $RECYCLE.BIN/
 .vs
 x64
 cudatest/Debug
+
+#
+.DS_Store

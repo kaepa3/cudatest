@@ -1,0 +1,13 @@
+[
+ {
+  "directory": "/Users/yamazakitakahiro/Documents/cudatest/reverse",
+  "arguments": [
+   "g++",
+   "-std=c++17",
+   "main.cpp",
+   "-o",
+   "main"
+  ],
+  "file": "main.cpp"
+ }
+]
