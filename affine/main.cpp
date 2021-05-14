@@ -90,8 +90,6 @@ int main(int argc, char *argv[]) {
       int idx = r * gray.step + c;
       dst.data[idx] = val;
     }
-  }
-  imshow("gray", gray);
   imshow("dst", dst);
 
   waitKey(0);
