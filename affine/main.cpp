@@ -48,39 +48,12 @@ vector<vector<double>> createMatrix(double angle, int x, int y) {
   return vec;
 }
 
-int main(int argc, char *argv[]) {
-  string path = "./sample.jpg";
-  Mat src, gray;
-  src = imread(path);
-
-  cvtColor(src, gray, COLOR_RGB2GRAY);
+Mat affine(Mat gray, vector<vector<double>> rm) {
   Mat dst(gray.size(), gray.type());
-  //
-  vector<vector<double>> matrix = createMatrix(deg2rad(5), 0, 0);
-  for (int r = 0; r < matrix.size(); r++) {
-    for (int c = 0; c < matrix[0].size(); c++) {
-      cout << matrix[r][c] << endl;
-    }
-  }
-
-  cout << "type:" << gray.size() << " type:" << gray.type() << endl;
-  cout << "rows:" << gray.rows << " cols:" << gray.cols << endl;
-  cout << "step:" << gray.step << " ele:" << gray.elemSize();
-  cout << " chan:" << gray.channels() << endl;
-
-  vector<vector<double>> rm = reverse(matrix);
-  for (int r = 0; r < rm.size(); r++) {
-    for (int c = 0; c < rm[0].size(); c++) {
-      cout << rm[r][c] << ",";
-    }
-    cout << endl;
-  }
-  cout << endl;
-  int width = gray.cols;
-  int heght = gray.rows;
 
   for (int r = 0; r < gray.rows; r++) {
     for (int c = 0; c < gray.cols; c++) {
+
       double refX = rm[0][0] * (c - ((double)gray.cols / 2)) +
                     rm[0][1] * (r - ((double)gray.rows / 2)) +
                     ((double)dst.cols / 2);
@@ -89,15 +62,53 @@ int main(int argc, char *argv[]) {
                     ((double)dst.rows / 2);
       int rX = (int)(refX + 0.5);
       int rY = (int)(refY + 0.5);
-      unsigned char val = 0;
-      if (rX >= 0 && rY >= 0 && rX < gray.cols && rY < gray.rows) {
-        val = gray.at<unsigned char>(rY, rX);
+      int ch = gray.channels();
+      if (ch == 1) {
+        uchar val=0;
+        if (rX >= 0 && rY >= 0 && rX < gray.cols && rY < gray.rows) {
+          val = gray.at<uchar>(rY, rX);
+        }
+        int idx = r * gray.step + (c * gray.elemSize());
+        dst.data[idx] = val;
+      } else {
+        Vec3b val{0,0,0};
+        if (rX >= 0 && rY >= 0 && rX < gray.cols && rY < gray.rows) {
+          val = gray.at<Vec3b>(rY, rX);
+        }
+        for (int chIdx = 0; chIdx < gray.channels(); chIdx++) {
+          int idx = r * gray.step + (c * gray.elemSize()) + chIdx;
+          dst.data[idx] = val[chIdx];
+        }
       }
-      int idx = r * gray.step + c;
-      dst.data[idx] = val;
     }
   }
+  return dst;
+}
 
+void status(Mat gray) {
+  cout << "---------------------------" << endl;
+  cout << "type:" << gray.size() << " type:" << gray.type() << endl;
+  cout << "rows:" << gray.rows << " cols:" << gray.cols << endl;
+  cout << "step:" << gray.step << " ele:" << gray.elemSize();
+  cout << " chan:" << gray.channels() << endl;
+}
+int main(int argc, char *argv[]) {
+  string path = "./sample.jpg";
+  Mat src, gray;
+  src = imread(path);
+
+  cvtColor(src, gray, COLOR_RGB2GRAY);
+  //
+  vector<vector<double>> matrix = createMatrix(deg2rad(10), 0, 0);
+  vector<vector<double>> rm = reverse(matrix);
+
+  status(gray);
+
+  Mat dst = affine(gray, rm);
   imshow("dst", dst);
+  waitKey(0);
+  status(src);
+  Mat dstCh3 = affine(src, rm);
+  imshow("src", dstCh3);
   waitKey(0);
 }
