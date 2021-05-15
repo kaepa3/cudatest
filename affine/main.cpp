@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
   cvtColor(src, gray, COLOR_RGB2GRAY);
   Mat dst(gray.size(), gray.type());
   //
-  vector<vector<double>> matrix = createMatrix(deg2rad(1), 0, 0);
+  vector<vector<double>> matrix = createMatrix(deg2rad(5), 0, 0);
   for (int r = 0; r < matrix.size(); r++) {
     for (int c = 0; c < matrix[0].size(); c++) {
       cout << matrix[r][c] << endl;
@@ -76,11 +76,17 @@ int main(int argc, char *argv[]) {
     cout << endl;
   }
   cout << endl;
+  int width = gray.cols;
+  int heght = gray.rows;
 
   for (int r = 0; r < gray.rows; r++) {
     for (int c = 0; c < gray.cols; c++) {
-      double refX = rm[0][0] * c + rm[0][1] * r;
-      double refY = rm[1][0] * c + rm[1][1] * r;
+      double refX = rm[0][0] * (c - ((double)gray.cols / 2)) +
+                    rm[0][1] * (r - ((double)gray.rows / 2)) +
+                    ((double)dst.cols / 2);
+      double refY = rm[1][0] * (c - ((double)gray.cols / 2)) +
+                    rm[1][1] * (r - ((double)gray.rows / 2)) +
+                    ((double)dst.rows / 2);
       int rX = (int)(refX + 0.5);
       int rY = (int)(refY + 0.5);
       unsigned char val = 0;
@@ -90,7 +96,8 @@ int main(int argc, char *argv[]) {
       int idx = r * gray.step + c;
       dst.data[idx] = val;
     }
-  imshow("dst", dst);
+  }
 
+  imshow("dst", dst);
   waitKey(0);
 }
