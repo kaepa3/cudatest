@@ -9,6 +9,7 @@ using namespace std;
 
 const double PI = 3.14159265358979323846;
 
+// reverse matrix
 vector<vector<double>> reverse(vector<vector<double>> vec) {
   int size = vec.size();
   // 単位行列作成
@@ -39,6 +40,7 @@ vector<vector<double>> reverse(vector<vector<double>> vec) {
   return inv_a;
 }
 
+//degree to radian 
 double deg2rad(double degree) { return degree * PI / 180.0; }
 
 vector<vector<double>> createMatrix(double angle, int x, int y) {
@@ -48,6 +50,7 @@ vector<vector<double>> createMatrix(double angle, int x, int y) {
   return vec;
 }
 
+// affine trans image
 Mat affine(Mat gray, vector<vector<double>> rm) {
   Mat dst(gray.size(), gray.type());
 
@@ -64,14 +67,14 @@ Mat affine(Mat gray, vector<vector<double>> rm) {
       int rY = (int)(refY + 0.5);
       int ch = gray.channels();
       if (ch == 1) {
-        uchar val=0;
+        uchar val = 0;
         if (rX >= 0 && rY >= 0 && rX < gray.cols && rY < gray.rows) {
           val = gray.at<uchar>(rY, rX);
         }
         int idx = r * gray.step + (c * gray.elemSize());
         dst.data[idx] = val;
       } else {
-        Vec3b val{0,0,0};
+        Vec3b val{0, 0, 0};
         if (rX >= 0 && rY >= 0 && rX < gray.cols && rY < gray.rows) {
           val = gray.at<Vec3b>(rY, rX);
         }
@@ -85,6 +88,7 @@ Mat affine(Mat gray, vector<vector<double>> rm) {
   return dst;
 }
 
+// display mat status
 void status(Mat gray) {
   cout << "---------------------------" << endl;
   cout << "type:" << gray.size() << " type:" << gray.type() << endl;
@@ -92,6 +96,8 @@ void status(Mat gray) {
   cout << "step:" << gray.step << " ele:" << gray.elemSize();
   cout << " chan:" << gray.channels() << endl;
 }
+
+// main Function
 int main(int argc, char *argv[]) {
   string path = "./sample.jpg";
   Mat src, gray;
