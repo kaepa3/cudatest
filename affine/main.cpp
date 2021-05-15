@@ -109,12 +109,11 @@ int main(int argc, char *argv[]) {
   vector<vector<double>> rm = reverse(matrix);
 
   status(gray);
+  status(src);
 
   Mat dst = affine(gray, rm);
-  imshow("dst", dst);
-  waitKey(0);
-  status(src);
   Mat dstCh3 = affine(src, rm);
+  imshow("dst", dst);
   imshow("src", dstCh3);
   waitKey(0);
 }
