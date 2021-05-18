@@ -23,7 +23,7 @@ void h_multiply(float* A, float* B, float* C)
 	}
 }
 
-void h_process() {
+float* h_process() {
 	unsigned int i;
 	for (i = 0; i < (WIDTH * WIDTH); i++) {
 		h_A[i] = (float)i;
@@ -33,6 +33,7 @@ void h_process() {
 	h_multiply(h_A, h_B, h_C);
 	clock_t end = clock();
 	cout << "ホスト計算結果:" << (double)(end - start) << endl;
+	return &h_C[0];
 }
 
 

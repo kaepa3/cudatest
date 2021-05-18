@@ -1,2 +1,2 @@
 #pragma once
-void h_process();
+float* h_process();
