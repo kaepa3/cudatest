@@ -1,6 +1,8 @@
 #include "HalconCpp.h"
 
 using namespace HalconCpp;
+using namespace std;
+
 void h_affine() {
 
 	HObject image;
@@ -15,34 +17,24 @@ void h_affine() {
 
 	HTuple hommat2dIdentity;
 	HomMat2dIdentity(&hommat2dIdentity);
+
+
 	HTuple hommat2rotate;
 	double rad = (45.0 / 180.0) * PI;
 	HomMat2dRotate(hommat2dIdentity,rad, h / 2, w / 2, &hommat2rotate);
 
+	HTuple hommat2dscale;
+	HomMat2dScale(hommat2rotate, 2, 2, 0, 0, &hommat2dscale);
+
 
 	HObject affineImage;
-	AffineTransImage(gray, &affineImage, hommat2rotate, "nearest_neighbor", "false");
+	
+	clock_t  start = clock();
+	AffineTransImage(gray, &affineImage, hommat2dscale, "nearest_neighbor", "false");
+	clock_t  end = clock();
+	cout << end - start << ":" << CLOCKS_PER_SEC << endl;
 	WriteImage(affineImage, "tiff", 0, "affineImage");
 
 
-	unsigned char* buffer = new unsigned char[w.I() * h.I()];
-	if (buffer != NULL) {
-
-		unsigned char* ptr = (unsigned char*)p.L();
-		for (int i = 0; i < w.I() - 1; i++) {
-			for (int j = 0; j < h.I() - 1; j++) {
-				int idx = (j * w.I() + i);
-				unsigned char val = (unsigned char)(ptr[idx] + 10);
-				if (val < ptr[idx] + 10) {
-					val = 255;
-				}
-				buffer[idx] = val;
-			}
-		}
-		HImage dst;
-		GenImage1(&dst, "byte", w, h, (Hlong)buffer);
-		WriteImage(dst, "tiff", 0, "writeTest");
-		delete[] buffer;
-	}
 
 }
