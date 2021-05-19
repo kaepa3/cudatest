@@ -42,8 +42,8 @@ __global__ void  d_affine(unsigned char* src, double* matrix, int width, int hei
 	return;
 }
 
-#define BLOCKWIDTH 	64
-#define BLOCKHEIGHT 16
+#define BLOCKWIDTH 	128
+#define BLOCKHEIGHT 8
 void gpu_affine() {
 
 	HObject image;
@@ -87,9 +87,13 @@ void gpu_affine() {
 
 	int width = w.I() * 2;
 	int height = h.I() * 2;
-	
-	dim3 block(BLOCKWIDTH, BLOCKHEIGHT);
+
+	cudaFuncAttributes attributes;
+	cudaFuncGetAttributes(&attributes, d_affine);
+	cout << "thread/block:" << attributes.maxThreadsPerBlock << endl;
+
 	dim3 grid((width + BLOCKWIDTH-1)/ BLOCKWIDTH, (height + BLOCKHEIGHT-1) / BLOCKHEIGHT);
+	dim3 block(BLOCKWIDTH, BLOCKHEIGHT);
 	double s = HSystem::CountSeconds(); 
 	d_affine << < grid, block >> > (d_src, d_matrix, w.I(), h.I(), w.I() * 2, h.I() * 2, d_dst);
 	double e = HSystem::CountSeconds(); 

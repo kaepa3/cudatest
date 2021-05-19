@@ -36,12 +36,12 @@ void h_affine(int a = 0) {
 	double e = HSystem::CountSeconds();
 	clock_t  end = clock();
 	cout << end - start << ":" << CLOCKS_PER_SEC << ";" << e - s << endl;
-	if (a == 0)
+	if (a != 0)
 	{
 		WriteImage(affineImage, "tiff", 0, "affineImage_gpu");
 	}
 	else {
-		WriteImage(affineImage, "tiff", 0, "affineImage");
+		WriteImage(affineImage, "tiff", 0, "affineImage_cpu");
 	}
 }
 
