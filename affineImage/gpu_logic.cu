@@ -3,6 +3,7 @@
 #include<cuda_runtime.h>
 #include "device_launch_parameters.h"
 #include "HalconCpp.h"
+#include "common_val.h"
 
 using namespace HalconCpp;
 using namespace std;
@@ -15,31 +16,38 @@ __global__ void  d_affine(unsigned char* src, double* matrix, int width, int hei
 
 	unsigned int r = blockDim.y * blockIdx.y + threadIdx.y;
 	unsigned int c = blockDim.x * blockIdx.x + threadIdx.x;
+	if ((c < dstWidth) && (r < dstHeight)) {
 
-	double refX = matrix[0] * (c - ((double)dstWidth / 2)) +
-		matrix[1] * (r - ((double)dstHeight / 2)) +
-		((double)width / 2);
-	double refY = matrix[3] * (c - ((double)dstWidth / 2)) +
-		matrix[4] * (r - ((double)dstHeight / 2)) +
-		((double)height / 2);
-	int rX = (int)(refX + 0.5);
-	int rY = (int)(refY + 0.5);
-	unsigned char val = 0;
-	if (rX >= 0 && rY >= 0 && rX < width && rY < height) {
+		double refX = matrix[0] * (c - ((double)dstWidth / 2)) +
+			matrix[1] * (r - ((double)dstHeight / 2)) +
+			((double)width / 2);
+		double refY = matrix[3] * (c - ((double)dstWidth / 2)) +
+			matrix[4] * (r - ((double)dstHeight / 2)) +
+			((double)height / 2);
+		int rX = (int)(refX + 0.5);
+		int rY = (int)(refY + 0.5);
+		unsigned char val = 0;
+		if (rX >= 0 && rY >= 0 && rX < width && rY < height) {
 
-		int idxRef = rY * width + rX;
-		val = src[idxRef];
+			int idxRef = rY * width + rX;
+			val = src[idxRef];
+		}
+		int idx = (r * dstWidth) + c;
+		if (idx < dstWidth * dstHeight)
+		{
+			dst[idx] = val;
+		}
+
 	}
-	int idx = r * dstWidth + c;
-	dst[idx] = val;
 	return;
 }
 
-#define BLOCK 4
+#define BLOCKWIDTH 	64
+#define BLOCKHEIGHT 16
 void gpu_affine() {
 
 	HObject image;
-	HalconCpp::ReadImage(&image, "sample.jpg");
+	HalconCpp::ReadImage(&image, READIMAGE);
 	HObject imgR, imgG, imgB;
 	Decompose3(image, &imgR, &imgG, &imgB);
 	HObject gray;
@@ -59,7 +67,7 @@ void gpu_affine() {
 
 	HTuple hommat2drotate;
 	double rad = (45.0 / 180.0) * PI;
-	HomMat2dRotate(hommat2dinvert, rad, h / 2, w / 2, &hommat2drotate);
+	HomMat2dRotate(hommat2dinvert, rad, 0, 0, &hommat2drotate);
 
 	unsigned char* ptr = (unsigned char*)p.L();
 	int length = w.I() * h.I();
@@ -78,16 +86,31 @@ void gpu_affine() {
 	cudaMemcpy(d_matrix, hommat2drotate.ToDArr(), matrixSize, cudaMemcpyHostToDevice);
 
 	int width = w.I() * 2;
-	dim3 grid(900 / BLOCK, 900/ BLOCK);
-	dim3 block(BLOCK, BLOCK);
-	d_affine << < grid, block >> > (d_src, d_matrix , w.I(), h.I(), w.I() * 2, h.I() * 2, d_dst);
+	int height = h.I() * 2;
+	
+	dim3 block(BLOCKWIDTH, BLOCKHEIGHT);
+	dim3 grid((width + BLOCKWIDTH-1)/ BLOCKWIDTH, (height + BLOCKHEIGHT-1) / BLOCKHEIGHT);
+	double s = HSystem::CountSeconds(); 
+	d_affine << < grid, block >> > (d_src, d_matrix, w.I(), h.I(), w.I() * 2, h.I() * 2, d_dst);
+	double e = HSystem::CountSeconds(); 
+	cout << (e-s) * 1000 << ":only" << endl;
+
 
 	cudaMemcpy(buffer, d_dst, length_2, cudaMemcpyDeviceToHost);
+	cudaFree(d_src);
+	cudaFree(d_dst);
+	cudaFree(d_matrix);
 	clock_t  end = clock();
 	cout << end - start << ":" << CLOCKS_PER_SEC << endl;
 	HImage dst;
 	GenImage1(&dst, "byte", w.I() * 2, h.I() * 2, (Hlong)buffer);
-	delete[] buffer;
 	WriteImage(dst, "tiff", 0, "gpu_affine");
 
+	//for (int i = 0; i < width; i++)
+	//{
+	//	cout << "[" << +buffer[i] << "]";
+	//}
+	//cout << endl;
+
+	delete[] buffer;
 }

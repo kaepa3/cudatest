@@ -1,4 +1,5 @@
 #include "HalconCpp.h"
+#include "common_val.h"
 
 using namespace HalconCpp;
 using namespace std;
@@ -38,7 +39,7 @@ void affine(unsigned char* src, double* matrix, int width, int height, int dstWi
 void cpu_affine() {
 
 	HObject image;
-	HalconCpp::ReadImage(&image, "sample.jpg");
+	HalconCpp::ReadImage(&image, READIMAGE);
 	HObject imgR, imgG, imgB;
 	Decompose3(image, &imgR, &imgG, &imgB);
 	HObject gray;

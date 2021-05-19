@@ -1,1 +1,2 @@
-﻿void gpu_affine();
+﻿#pragma once
+void gpu_affine();
