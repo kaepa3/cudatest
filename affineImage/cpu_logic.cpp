@@ -62,7 +62,8 @@ void cpu_affine() {
 
 
 	unsigned char* ptr = (unsigned char*)p.L();
-	unsigned char* buffer = new unsigned char[w.I() * 2 *  h.I() * 2];
+	int length = w.I() * 2 * h.I() * 2;
+	unsigned char* buffer = new unsigned char[length];
 	clock_t  start = clock();
 	affine(ptr, hommat2drotate.DArr(), w.I(), h.I(), w.I() * 2, h.I() * 2, buffer);
 	clock_t  end = clock();
